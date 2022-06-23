@@ -2,7 +2,8 @@ public class Main {
 
     public static void main(String[] args) {
         Board b = new Board();
-        Snake sid = new Snake(100, 100);
+        Grid g = new Grid(10,10);
+        Snake sid = new Snake(g);
         b.addSnake(sid);
     }
 }

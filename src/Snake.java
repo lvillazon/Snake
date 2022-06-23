@@ -1,58 +1,49 @@
 import java.util.ArrayList;
 
 public class Snake {
-    ArrayList<Segment> body;
-    Segment head;
+    private int maxLength = 100;
+    private int[] xCoords;
+    private int[] yCoords;
+    private int length;
+    private Grid grid;
 
-    public Snake(int startX, int startY) {
-        body = new ArrayList<Segment>();
-        head = new Segment(startX, startY);
-        body.add(head);
+    public Snake(Grid g) {
+        grid = g;
         // add some starting segments
-        for (int i=1; i<5; i++) {
-            Segment s = new Segment(startX + i * 10, startY);
-            body.add(s);
+        int startX = grid.getWidth()/2;
+        int startY = grid.getHeight()/2;
+        length = 5;
+        xCoords = new int[maxLength];
+        yCoords = new int[maxLength];
+        for (int i=0; i<length; i++) {
+            xCoords[i] = startX + i * 10;
+            yCoords[i] = startY;
         }
     }
 
     public int getLength() {
-        return body.size();
+        return length;
     }
 
-    public Segment getSegment(int i) {
-        return body.get(i);
+    public int getX(int i) {
+        return xCoords[i];
+    }
+    public int getY(int i) {
+        return yCoords[i];
     }
 
-    public void left(int distance) {
-        Segment tempSeg = new Segment(head.x, head.y);
-        shuffleBody();
-        head.x = tempSeg.x - distance;
-    }
-
-    public void right(int distance) {
-        Segment tempSeg = new Segment(head.x, head.y);
-        shuffleBody();
-        head.x = tempSeg.x + distance;
-    }
-
-    public void up(int distance) {
-        Segment tempSeg = new Segment(head.x, head.y);
-        shuffleBody();
-        head.y = tempSeg.y - distance;
-    }
-
-    public void down(int distance) {
-        Segment tempSeg = new Segment(head.x, head.y);
-        shuffleBody();
-        head.y = tempSeg.y + distance;
-    }
-
-    private void shuffleBody() {
-        if (body.size() > 1) {
-            for (int i = 1; i < body.size()-1; i++) {
-                body.get(i).x = body.get(i-1).x;
-                body.get(i).y = body.get(i-1).y;
-            }
+    public void move(int dx, int dy) {
+        // shuffle the tail segments up 1 space
+        for (int i=length-1; i>0; i--) {
+            xCoords[i] = xCoords[i-1];
+            yCoords[i] = yCoords[i-1];
         }
+        // move the head to the new location
+        xCoords[0] = xCoords[0] + dx;
+        yCoords[0] = yCoords[0] + dy;
+    }
+
+    public void grow(int segments) {
+        length = length + segments;
     }
 }

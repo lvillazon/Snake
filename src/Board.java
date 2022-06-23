@@ -51,21 +51,31 @@ public class Board extends JPanel implements Runnable{
             // update and draw snake
             if (snake != null) {
                 if (keys.getLastPressed() == "left") {
-                    snake.left(GRID_SIZE);
+                    snake.move(-GRID_SIZE,0);
                 }
                 if (keys.getLastPressed() == "right") {
-                    snake.right(GRID_SIZE);
+                    snake.move(GRID_SIZE,0);
                 }
                 if (keys.getLastPressed() == "up") {
-                    snake.up(GRID_SIZE);
+                    snake.move(0, -GRID_SIZE);
                 }
                 if (keys.getLastPressed() == "down") {
-                    snake.down(GRID_SIZE);
+                    snake.move(0, GRID_SIZE);
                 }
 
-                g.setColor(new Color(0,128,0));
+                if (Math.random() > .8) {
+                    snake.grow(1);
+                }
+
+                int red = 0;
                 for (int i = 0; i < snake.getLength(); i++) {
-                    g2.fillRect(snake.getSegment(i).x, snake.getSegment(i).y, GRID_SIZE, GRID_SIZE);
+                    if (i==0) {
+                        g.setColor(Color.red);
+                    } else {
+                        g.setColor(new Color(red, 128, 0));
+                    }
+                    red = i * (255 / snake.getLength());
+                    g2.fillRect(snake.getX(i), snake.getY(i), GRID_SIZE, GRID_SIZE);
                 }
             }
         }

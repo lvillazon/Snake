@@ -1,9 +1,8 @@
 public class Main {
 
     public static void main(String[] args) {
-        Board b = new Board();
-        Grid g = new Grid(10,10);
+        Grid g = new Grid(30,30);
         Snake sid = new Snake(g);
-        b.addSnake(sid);
+        Board b = new Board(g, sid);
     }
 }

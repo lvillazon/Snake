@@ -6,8 +6,8 @@ import java.util.Collections;
 
 public class Board extends JPanel implements Runnable{
 
-        private final int SCREEN_HEIGHT = 480;
-        private final int SCREEN_WIDTH = 640;
+        private int SCREEN_HEIGHT = 480;
+        private int SCREEN_WIDTH = 640;
         private final int BOTTOM_MARGIN = -50;
         public final int TARGET_DRAW_TIME = 200; // notional time in ms for each frame update
         public final int GRID_SIZE = 10;
@@ -19,14 +19,19 @@ public class Board extends JPanel implements Runnable{
         private KeyChecker keys;
 
         private Snake snake;
+        private Grid grid;
 
-        public Board() {
+        public Board(Grid g, Snake s) {
+            grid = g;
+            snake = s;
             frame = new JFrame("Snake");
-            frame.setSize(640, 480);
-            setBounds(0,0, 640, 480);
+            SCREEN_WIDTH = ((int)640/grid.getWidth()) * grid.getWidth();
+            SCREEN_HEIGHT = ((int)480/grid.getHeight()) * grid.getHeight();
+            System.out.println("Screen size: " + SCREEN_WIDTH + "," + SCREEN_HEIGHT);
+            frame.setSize(SCREEN_WIDTH+16, SCREEN_HEIGHT+39);
+            setBounds(0,0, SCREEN_WIDTH, SCREEN_HEIGHT);
             setBackground(Color.black);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            snake = null;
             frame.add(this);
             frame.setVisible(true);
             setFocusable(true);
@@ -34,37 +39,41 @@ public class Board extends JPanel implements Runnable{
             addKeyListener(keys);
         }
 
-        public void addSnake(Snake s) {
-            snake = s;
-        }
-
         @Override
         public void paintComponent(Graphics g) {
             super.paintComponent(g);
-            // draw the outline around the play area
+            // clear the frame
             Graphics2D g2 = (Graphics2D) g;
-            g.setColor(new Color(0,128,0));
-            g2.fillRect(0,0, SCREEN_WIDTH, SCREEN_HEIGHT);
             g.setColor(new Color(0,0,0));
-            g2.fillRect(GRID_SIZE,GRID_SIZE, SCREEN_WIDTH-35, SCREEN_HEIGHT-60);
+            g2.fillRect(0,0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+            // draw anything on the grid
+            for (int y=0; y< grid.getHeight(); y++) {
+                for (int x=0; x<grid.getWidth(); x++) {
+                    if (grid.isWall(x,y)) {
+                        g.setColor(Color.orange);
+                        g2.fillRect(x*gridWidth(), y*gridHeight(), gridWidth(), gridHeight());
+                    }
+                    if (grid.isFood(x,y)) {
+                        g.setColor(Color.red);
+                        g2.fillOval(x*gridWidth(), y*gridHeight(), gridWidth(), gridHeight());
+                    }
+                }
+            }
 
             // update and draw snake
             if (snake != null) {
                 if (keys.getLastPressed() == "left") {
-                    snake.move(-GRID_SIZE,0);
+                    snake.move(-1,0);
                 }
                 if (keys.getLastPressed() == "right") {
-                    snake.move(GRID_SIZE,0);
+                    snake.move(1,0);
                 }
                 if (keys.getLastPressed() == "up") {
-                    snake.move(0, -GRID_SIZE);
+                    snake.move(0, -1);
                 }
                 if (keys.getLastPressed() == "down") {
-                    snake.move(0, GRID_SIZE);
-                }
-
-                if (Math.random() > .8) {
-                    snake.grow(1);
+                    snake.move(0, 1);
                 }
 
                 int red = 0;
@@ -75,11 +84,20 @@ public class Board extends JPanel implements Runnable{
                         g.setColor(new Color(red, 128, 0));
                     }
                     red = i * (255 / snake.getLength());
-                    g2.fillRect(snake.getX(i), snake.getY(i), GRID_SIZE, GRID_SIZE);
+                    g2.fillRect(snake.getX(i)*gridWidth(), snake.getY(i)*gridHeight(), gridWidth(), gridHeight());
                 }
             }
         }
-        @Override
+
+    private int gridWidth(){
+        return (int)SCREEN_WIDTH/grid.getWidth();
+    }
+
+    private int gridHeight(){
+        return (int)(SCREEN_HEIGHT)/grid.getHeight();
+    }
+
+    @Override
         public void addNotify() {
             System.out.println("SEQUENCE: Game addNotify");
             // called when the Game object is added to the JFrame
